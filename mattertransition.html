@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matter State System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+
+        .state {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            width: 300px;
+            text-align: center;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .log {
+            margin-top: 20px;
+            max-width: 400px;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>Matter State System</h1>
+    <div class="state">
+        <p>Current State: <span id="current-state">Gas</span></p>
+        <button id="to-liquid">Change to Liquid</button>
+        <button id="to-gas">Change to Gas</button>
+        <button id="to-solid">Change to Solid</button>
+        <button id="delete-state">Delete State</button>
+    </div>
+    <div class="log">
+        <h3>Log:</h3>
+        <pre id="log"></pre>
+    </div>
+
+    <script>
+        let currentState = "Gas";
+        const stateDisplay = document.getElementById("current-state");
+        const logDisplay = document.getElementById("log");
+
+        const buttons = {
+            toLiquid: document.getElementById("to-liquid"),
+            toGas: document.getElementById("to-gas"),
+            toSolid: document.getElementById("to-solid"),
+            deleteState: document.getElementById("delete-state"),
+        };
+
+        function updateState(newState) {
+            if (currentState === "Solid") {
+                log("State is Solid. It cannot be modified or deleted.");
+                return;
+            }
+
+            log(`State changed from ${currentState} to ${newState}.`);
+            currentState = newState;
+            stateDisplay.textContent = currentState;
+
+            if (currentState === "Solid") {
+                log("State is Solid. Saving to file.");
+                saveToFile("Solid");
+                disableButtons();
+            }
+        }
+
+        function deleteState() {
+            if (currentState === "Solid") {
+                log("State is Solid. It cannot be deleted.");
+                return;
+            }
+
+            log(`State ${currentState} deleted.`);
+            currentState = "";
+            stateDisplay.textContent = "None";
+        }
+
+        function disableButtons() {
+            buttons.toLiquid.disabled = true;
+            buttons.toGas.disabled = true;
+            buttons.toSolid.disabled = true;
+            buttons.deleteState.disabled = true;
+        }
+
+        function saveToFile(state) {
+            const blob = new Blob([`Final State: ${state}`], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "final_state.txt";
+            link.click();
+        }
+
+        function log(message) {
+            logDisplay.textContent += `${message}\n`;
+        }
+
+        buttons.toLiquid.addEventListener("click", () => updateState("Liquid"));
+        buttons.toGas.addEventListener("click", () => updateState("Gas"));
+        buttons.toSolid.addEventListener("click", () => updateState("Solid"));
+        buttons.deleteState.addEventListener("click", deleteState);
+
+        log("Initial state: Gas.");
+    </script>
+</body>
+</html>
